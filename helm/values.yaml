@@ -16,6 +16,7 @@ image:
   frontend:
     repository: image-registry.openshift-image-registry.svc:5000/inventory-ba/frontend
     tag: latest
+  pullPolicy: IfNotPresent
 
 env:
   DB_USER: postgres
@@ -39,8 +40,3 @@ services:
   frontend:
     type: ClusterIP
     port: 80
-
-ingress:
-  enabled: false   # default jangan aktif dulu biar gak error
-  className: nginx
-  host: inventaris.local
