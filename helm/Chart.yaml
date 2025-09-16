@@ -1,0 +1,5 @@
+apiVersion: v2
+name: inventaris
+description: Umbrella chart for Inventaris microservices
+version: 0.1.0
+appVersion: "1.0"
