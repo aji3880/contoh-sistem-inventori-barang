@@ -3,9 +3,7 @@ kind: Service
 metadata:
   name: {{ include "fullname" . }}-gateway
 spec:
-  type: {{ .Values.service.type }}
-  selector:
-    app: gateway
+  type: {{ .Values.services.user.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: 3000
+    - port: {{ .Values.services.user.port }}
+      targetPort: {{ .Values.services.user.port }}

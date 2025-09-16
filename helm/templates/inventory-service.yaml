@@ -5,10 +5,8 @@ metadata:
   labels:
     app: inventory-service
 spec:
-  selector:
-    app: inventory-service
+  type: {{ .Values.services.user.type }}
   ports:
-    - name: http
-      port: 80
-      targetPort: 3002
-  type: ClusterIP
+    - port: {{ .Values.services.user.port }}
+      targetPort: {{ .Values.services.user.port }}
+

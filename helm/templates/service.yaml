@@ -1,13 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "inventaris.fullname" . }}-user
   labels:
-    app: {{ .Chart.Name }}
+    app: user-service
 spec:
   type: {{ .Values.service.type }}
-  selector:
-    app: {{ .Chart.Name }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 80
+      targetPort: 3001
+      protocol: TCP
+  selector:
+    app: user-service

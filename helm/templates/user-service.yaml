@@ -3,9 +3,7 @@ kind: Service
 metadata:
   name: {{ include "fullname" . }}-user
 spec:
-  type: ClusterIP
-  selector:
-    app: user-service
+  type: {{ .Values.services.user.type }}
   ports:
-    - port: 3001
-      targetPort: 3001
+    - port: {{ .Values.services.user.port }}
+      targetPort: {{ .Values.services.user.port }}

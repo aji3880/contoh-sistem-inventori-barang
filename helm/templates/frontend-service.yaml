@@ -5,10 +5,8 @@ metadata:
   labels:
     app: frontend
 spec:
-  selector:
-    app: frontend
+  type: {{ .Values.services.user.type }}
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
-  type: ClusterIP
+    - port: {{ .Values.services.user.port }}
+      targetPort: {{ .Values.services.user.port }}
+
