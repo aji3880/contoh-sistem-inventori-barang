@@ -1,8 +1,21 @@
 replicaCount: 1
 
 image:
-  repository: image-registry.openshift-image-registry.svc:5000/inventory-ba
-  tag: "latest"
+  gateway:
+    repository: image-registry.openshift-image-registry.svc:5000/inventory-ba/gateway
+    tag: latest
+  userService:
+    repository: image-registry.openshift-image-registry.svc:5000/inventory-ba/user-service
+    tag: latest
+  inventoryService:
+    repository: image-registry.openshift-image-registry.svc:5000/inventory-ba/inventory-service
+    tag: latest
+  transactionService:
+    repository: image-registry.openshift-image-registry.svc:5000/inventory-ba/transaction-service
+    tag: latest
+  frontend:
+    repository: image-registry.openshift-image-registry.svc:5000/inventory-ba/frontend
+    tag: latest
 
 env:
   DB_USER: postgres
