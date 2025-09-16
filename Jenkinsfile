@@ -18,7 +18,7 @@ pipeline {
       }
     }
 
-    stage('Build & Push Images with S2I') {
+    stage('Build & Push Images') {
       steps {
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
@@ -37,7 +37,7 @@ pipeline {
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
           for(s in services){
-            sh "oc tag ${NAMESPACE}/${s}:latest ${NAMESPACE}/${s}:${IMAGE_TAG}"
+            sh "oc tag ${NAMESPACE}/${s}:latest ${NAMESPACE}/${s}:${IMAGE_TAG} || echo 'Skip tagging, source not found'"
           }
         }
       }
