@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "fullname" . }}-inventory
+  name: inventory-service
   labels:
     app: inventory-service
 spec:
@@ -16,8 +16,7 @@ spec:
     spec:
       containers:
         - name: inventory-service
-          image: "{{ .Values.image.inventoryService.repository }}:{{ .Values.image.inventoryService.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.image.repository }}/inventory-service:{{ .Values.image.tag }}"
           ports:
             - containerPort: 3002
           env:
@@ -31,15 +30,3 @@ spec:
               port: 3002
             initialDelaySeconds: 5
             periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 3002
-            initialDelaySeconds: 15
-            periodSeconds: 20
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
