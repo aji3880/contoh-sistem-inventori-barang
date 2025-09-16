@@ -18,6 +18,37 @@ pipeline {
       }
     }
 
+    stage('Prepare package.json') {
+      steps {
+        script {
+          def services = ['gateway', 'user-service', 'inventory-service', 'transaction-service', 'frontend']
+          for (s in services) {
+            sh """
+              mkdir -p ${s}
+              if [ ! -f ${s}/package.json ]; then
+                cat > ${s}/package.json <<EOF
+{
+  "name": "${s}",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+EOF
+                echo "Generated package.json for ${s}"
+              else
+                echo "package.json already exists for ${s}, skipping..."
+              fi
+            """
+          }
+        }
+      }
+    }
+
    stage('Build & Push Images') {
         steps {
             script {
