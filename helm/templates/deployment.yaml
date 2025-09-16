@@ -1,22 +1,19 @@
-piVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
-  labels:
-    app: {{ .Chart.Name }}
+  name: {{ .Chart.Name }}-gateway
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}
+      app: gateway
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
+        app: gateway
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: gateway
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: 3000
