@@ -97,6 +97,7 @@ EOF
             script {
             sh "oc project ${NAMESPACE}"
             sh "\$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG}"
+            sh "\$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --dry-run --debug"
             }
         }
     }
