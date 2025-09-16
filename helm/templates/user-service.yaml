@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "inventaris.fullname" . }}-user
   labels:
-    app: user-service
+    {{- include "inventaris.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.services.user.type }}
   ports:
