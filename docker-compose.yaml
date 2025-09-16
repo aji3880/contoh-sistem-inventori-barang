@@ -1,0 +1,102 @@
+ersion: '3.8'
+services:
+  postgres_user:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: userpass
+    ports:
+      - 5433:5432
+    volumes:
+      - pguserdata:/var/lib/postgresql/data
+
+  postgres_inventory:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: inventorydb
+      POSTGRES_USER: inv
+      POSTGRES_PASSWORD: invpass
+    ports:
+      - 5434:5432
+    volumes:
+      - pginvdata:/var/lib/postgresql/data
+
+  postgres_tx:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: txdb
+      POSTGRES_USER: tx
+      POSTGRES_PASSWORD: txpass
+    ports:
+      - 5435:5432
+    volumes:
+      - pgtxdata:/var/lib/postgresql/data
+
+  user-service:
+    build: ./user-service
+    environment:
+      - PORT=3001
+      - DB_HOST=postgres_user
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASS=userpass
+      - DB_NAME=userdb
+      - JWT_SECRET=supersecretjwt
+    depends_on:
+      - postgres_user
+    ports:
+      - 3001:3001
+
+  inventory-service:
+    build: ./inventory-service
+    environment:
+      - PORT=3002
+      - DB_HOST=postgres_inventory
+      - DB_PORT=5432
+      - DB_USER=inv
+      - DB_PASS=invpass
+      - DB_NAME=inventorydb
+      - USER_SERVICE_URL=http://user-service:3001
+    depends_on:
+      - postgres_inventory
+      - user-service
+    ports:
+      - 3002:3002
+
+  transaction-service:
+    build: ./transaction-service
+    environment:
+      - PORT=3003
+      - DB_HOST=postgres_tx
+      - DB_PORT=5432
+      - DB_USER=tx
+      - DB_PASS=txpass
+      - DB_NAME=txdb
+      - INVENTORY_SERVICE_URL=http://inventory-service:3002
+      - USER_SERVICE_URL=http://user-service:3001
+    depends_on:
+      - postgres_tx
+      - inventory-service
+      - user-service
+    ports:
+      - 3003:3003
+
+  api-gateway:
+    build: ./api-gateway
+    environment:
+      - PORT=3000
+      - USER_SERVICE_URL=http://user-service:3001
+      - INVENTORY_SERVICE_URL=http://inventory-service:3002
+      - TRANSACTION_SERVICE_URL=http://transaction-service:3003
+    depends_on:
+      - user-service
+      - inventory-service
+      - transaction-service
+    ports:
+      - 3000:3000
+
+volumes:
+  pguserdata:
+  pginvdata:
+  pgtxdata:

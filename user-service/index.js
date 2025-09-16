@@ -1,25 +1,23 @@
-/ user-service/index.js
 const express = require('express');
+const { User, initDb } = require('./models');
+
 const app = express();
 app.use(express.json());
 
-let users = [
-{ id: 1, username: 'admin', email: 'admin@example.com', role: 'admin', created_at: new Date().toISOString() }
-];
-let idSeq = users.length + 1;
+initDb();
 
-app.get('/', (req, res) => res.json(users));
-app.get('/:id', (req, res) => {
-const u = users.find(x => x.id === Number(req.params.id));
-if(!u) return res.status(404).json({error: 'not found'});
-res.json(u);
+app.get('/', async (req, res) => res.json(await User.findAll()));
+
+app.get('/:id', async (req, res) => {
+  const u = await User.findByPk(req.params.id);
+  if(!u) return res.status(404).json({error: 'not found'});
+  res.json(u);
 });
 
-app.post('/', (req, res) => {
-const { username, email, role } = req.body;
-const newUser = { id: idSeq++, username, email, role, created_at: new Date().toISOString() };
-users.push(newUser);
-res.status(201).json(newUser);
+app.post('/', async (req, res) => {
+  const { username, email, role } = req.body;
+  const newUser = await User.create({ username, email, role });
+  res.status(201).json(newUser);
 });
 
 app.listen(3001, () => console.log('User service on :3001'));

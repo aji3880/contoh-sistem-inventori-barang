@@ -1,0 +1,36 @@
+"dependencies": {
+  "sequelize": "^6.x",
+  "pg": "^8.x",
+  "pg-hstore": "^2.x",
+  "bcrypt": "^5.x",
+  "jsonwebtoken": "^9.x"
+},
+"devDependencies": {
+  "sequelize-cli": "^6.x"
+}
+"scripts": {
+  "db:migrate": "sequelize db:migrate",
+  "db:seed": "sequelize db:seed:all"
+}
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}
+{
+  "name": "user-service",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.0",
+    "sequelize": "^6.32.1"
+  }
+}
