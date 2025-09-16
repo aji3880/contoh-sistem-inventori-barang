@@ -18,18 +18,23 @@ pipeline {
       }
     }
 
-    stage('Build & Push Images') {
-      steps {
-        script {
-          def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
-          for(s in services){
-            sh "oc new-project ${NAMESPACE} || echo 'Project exists'"
-            sh "oc login ${OCP_API} --token=${OCP_TOKEN} --insecure-skip-tls-verify=true"
-            sh "oc new-build --binary --name=${s} -n ${NAMESPACE} --strategy=docker || true"
-            sh "oc start-build ${s} --from-dir=${s} --follow -n ${NAMESPACE}"
-          }
+   stage('Build & Push Images') {
+        steps {
+            script {
+            def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
+                for(s in services){
+                    sh "oc login ${OCP_API} --token=${OCP_TOKEN} --insecure-skip-tls-verify=true"
+                    
+                    sh """
+                    if ! oc get bc ${s} -n ${NAMESPACE} >/dev/null 2>&1; then
+                    oc new-build --binary --name=${s} -n ${NAMESPACE} --strategy=docker
+                    fi
+                    """
+                    
+                    sh "oc start-build ${s} --from-dir=${s} --follow -n ${NAMESPACE}"
+                }
+            }
         }
-      }
     }
 
     stage('Tag Images') {
@@ -57,12 +62,12 @@ pipeline {
     }
 
     stage('Deploy with Helm') {
-      steps {
-        script {
-          sh "oc project ${NAMESPACE} || oc new-project ${NAMESPACE}"
-          sh "helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG}"
+        steps {
+            script {
+            sh "oc project ${NAMESPACE}"
+            sh "\$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG}"
+            }
         }
-      }
     }
 
     stage('Deploy to OpenShift') {
