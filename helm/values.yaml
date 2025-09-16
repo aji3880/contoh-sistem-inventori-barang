@@ -22,3 +22,20 @@ env:
   DB_PASSWORD: postgres
   DB_HOST: postgres
   RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+
+services:
+  gateway:
+    type: ClusterIP
+    port: 3000
+  user:
+    type: ClusterIP
+    port: 3001
+  inventory:
+    type: ClusterIP
+    port: 3002
+  transaction:
+    type: ClusterIP
+    port: 3003
+  frontend:
+    type: ClusterIP
+    port: 80
