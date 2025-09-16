@@ -39,3 +39,8 @@ services:
   frontend:
     type: ClusterIP
     port: 80
+
+ingress:
+  enabled: false   # default jangan aktif dulu biar gak error
+  className: nginx
+  host: inventaris.local
