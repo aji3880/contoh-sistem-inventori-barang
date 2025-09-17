@@ -1,4 +1,3 @@
-
 pipeline {
   agent any
 
@@ -13,17 +12,16 @@ pipeline {
   }
 
   stages {
-
     stage('Checkout') {
       steps {
         checkout scm
       }
     }
 
-    stage('Prepare package.json') {
+    stage('Generate package.json') {
       steps {
         script {
-          def services = ['gateway', 'user-service', 'inventory-service', 'transaction-service', 'frontend']
+          def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
           for (s in services) {
             sh """
               mkdir -p ${s}
@@ -37,8 +35,7 @@ pipeline {
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "vite preview --port 8080"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.0.0",
@@ -52,7 +49,6 @@ pipeline {
   }
 }
 EOF
-                  echo "Generated package.json with build script for ${s}"
                 else
                   cat > ${s}/package.json <<EOF
 {
@@ -67,10 +63,10 @@ EOF
   }
 }
 EOF
-                  echo "Generated package.json for ${s}"
                 fi
+                echo "Generated package.json for ${s}"
               else
-                echo "package.json already exists for ${s}, skipping..."
+                echo "package.json exists for ${s}, skipping"
               fi
             """
           }
@@ -82,16 +78,14 @@ EOF
       steps {
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
-          for(s in services){
-            sh "oc login ${OCP_API} --token=${OCP_TOKEN} --insecure-skip-tls-verify=true"
-
+          sh "oc login ${OCP_API} --token=${OCP_TOKEN} --insecure-skip-tls-verify=true"
+          for (s in services) {
             sh """
               if ! oc get bc ${s} -n ${NAMESPACE} >/dev/null 2>&1; then
                 oc new-build --binary --name=${s} -n ${NAMESPACE} --strategy=docker
               fi
+              oc start-build ${s} --from-dir=${s} --follow -n ${NAMESPACE}
             """
-
-            sh "oc start-build ${s} --from-dir=${s} --follow -n ${NAMESPACE}"
           }
         }
       }
@@ -101,14 +95,8 @@ EOF
       steps {
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
-          for(s in services){
-            sh """
-              if oc get istag ${NAMESPACE}/${s}:latest >/dev/null 2>&1; then
-                oc tag ${NAMESPACE}/${s}:latest ${NAMESPACE}/${s}:${IMAGE_TAG}
-              else
-                echo "Skip tagging ${s}, latest image not found"
-              fi
-            """
+          for (s in services) {
+            sh "oc tag ${NAMESPACE}/${s}:latest ${NAMESPACE}/${s}:${IMAGE_TAG} || echo 'Skip tagging, image not ready'"
           }
         }
       }
@@ -121,6 +109,7 @@ EOF
           tar -xzf helm.tar.gz
           mkdir -p \$WORKSPACE/bin
           mv linux-amd64/helm \$WORKSPACE/bin/helm
+          chmod +x \$WORKSPACE/bin/helm
           export PATH=\$WORKSPACE/bin:\$PATH
           \$WORKSPACE/bin/helm version
         """
@@ -129,11 +118,10 @@ EOF
 
     stage('Deploy with Helm') {
       steps {
-        script {
-          sh "oc project ${NAMESPACE}"
-          sh "\$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG}"
-          sh "\$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --dry-run --debug"
-        }
+        sh """
+          oc project ${NAMESPACE}
+          \$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --atomic
+        """
       }
     }
 
@@ -141,17 +129,11 @@ EOF
       steps {
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
-          for(s in services){
-            sh """
-            if oc get deployment ${s} -n ${NAMESPACE} >/dev/null 2>&1; then
-              oc rollout restart deployment ${s} -n ${NAMESPACE}
-            else
-              echo "Deployment ${s} not found, skip..."
-            fi
-            """
+          for (s in services) {
+            sh "oc rollout restart deployment ${s} -n ${NAMESPACE} || echo 'Deployment ${s} not found, skip...'"
           }
         }
       }
     }
-  } // end stages
-} // end pipeline
+  }
+}
