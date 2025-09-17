@@ -105,9 +105,12 @@ EOF
     stage('Deploy to OpenShift') {
         steps {
             script {
-                sh """
-                oc rollout restart deployment ${APP_NAME} -n ${NAMESPACE}
-                """
+                def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
+                for (s in services) {
+                    sh """
+                    oc rollout restart deployment ${s} -n ${NAMESPACE} || echo "Deployment ${s} not found, skip..."
+                    """
+                }
             }
         }
     }
