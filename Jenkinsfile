@@ -18,35 +18,63 @@ pipeline {
       }
     }
 
-    stage('Prepare package.json') {
-      steps {
-        script {
-          def services = ['gateway', 'user-service', 'inventory-service', 'transaction-service', 'frontend']
-          for (s in services) {
-            sh """
-              mkdir -p ${s}
-              if [ ! -f ${s}/package.json ]; then
+  stage('Prepare package.json') {
+    steps {
+      script {
+        def services = ['gateway', 'user-service', 'inventory-service', 'transaction-service', 'frontend']
+        for (s in services) {
+          sh """
+            mkdir -p ${s}
+            if [ ! -f ${s}/package.json ]; then
+              if [ "${s}" = "frontend" ]; then
                 cat > ${s}/package.json <<EOF
-{
-  "name": "${s}",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
+  {
+    "name": "${s}",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview",
+      "start": "vite preview --port 8080"
+    },
+    "dependencies": {
+      "react": "^18.0.0",
+      "react-dom": "^18.0.0"
+    },
+    "devDependencies": {
+      "vite": "^4.0.0",
+      "tailwindcss": "^3.0.0",
+      "postcss": "^8.0.0",
+      "autoprefixer": "^10.0.0"
+    }
   }
-}
-EOF
-                echo "Generated package.json for ${s}"
+  EOF
+                echo "Generated package.json with build script for ${s}"
               else
-                echo "package.json already exists for ${s}, skipping..."
+                cat > ${s}/package.json <<EOF
+  {
+    "name": "${s}",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2"
+    }
+  }
+  EOF
+                echo "Generated package.json for ${s}"
               fi
-            """
-          }
+            else
+              echo "package.json already exists for ${s}, skipping..."
+            fi
+          """
         }
       }
+    }
+  }
     }
 
    stage('Build & Push Images') {
