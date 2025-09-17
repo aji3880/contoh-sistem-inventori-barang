@@ -6,7 +6,7 @@ pipeline {
     IMAGE_TAG = "${env.BUILD_NUMBER ?: 'latest'}"
     NAMESPACE = "inventory-ba"
     OCP_API = "https://api.cluster-qjwdn.dynamic.redhatworkshops.io:6443"
-    OCP_TOKEN = "sha256~9JKgf2E1-ighI5C6C5d7c0yj93gezvloZShNbLm23Fg"
+    OCP_TOKEN = "sha256~yfLGl7zMjScA5z_-cf2WdAfHsbMMGl2sSHOHuvw4S5I"
     APP_NAME = "inventaris"
     HELM_VERSION = "v3.14.0"
   }
