@@ -137,18 +137,21 @@ EOF
       }
     }
 
-    stage('Deploy to OpenShift') {
+    stage('Restart Deployments') {
       steps {
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
-          for (s in services) {
+          for(s in services){
             sh """
-              oc rollout restart deployment ${s} -n ${NAMESPACE} || echo "Deployment ${s} not found, skip..."
+            if oc get deployment ${s} -n ${NAMESPACE} >/dev/null 2>&1; then
+              oc rollout restart deployment ${s} -n ${NAMESPACE}
+            else
+              echo "Deployment ${s} not found, skip..."
+            fi
             """
           }
         }
       }
     }
-
   } // end stages
 } // end pipeline
