@@ -1,9 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "fullname" . }}-gateway
+  name: {{ include "inventaris.fullname" . }}-gateway
+  labels:
+    app: gateway
 spec:
-  type: {{ .Values.services.user.type }}
+  type: {{ .Values.services.gateway.type }}
   ports:
-    - port: {{ .Values.services.user.port }}
-      targetPort: {{ .Values.services.user.port }}
+    - port: {{ .Values.services.gateway.port }}
+      targetPort: {{ .Values.services.gateway.targetPort }}
+      protocol: TCP
+  selector:
+    app: gateway
