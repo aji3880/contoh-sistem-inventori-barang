@@ -26,15 +26,11 @@ RUN test -f package.json || cat > package.json <<'EOF'
 EOF
 
 RUN npm install
-
 COPY . .
-
 RUN npm run build
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
-
 COPY --from=build /app/dist ./
-
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
