@@ -129,7 +129,7 @@ EOF
       steps {
         sh """
           oc project ${NAMESPACE}
-          \$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --atomic --wait --timeout 5m
+          \$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --atomic --wait --timeout 5m --force
         """
       }
     }
