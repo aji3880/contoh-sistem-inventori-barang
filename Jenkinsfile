@@ -46,6 +46,15 @@ pipeline {
     "tailwindcss": "^3.0.0",
     "postcss": "^8.0.0",
     "autoprefixer": "^10.0.0"
+  },
+  {
+  "name": "frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   }
 }
 EOF
@@ -120,7 +129,7 @@ EOF
       steps {
         sh """
           oc project ${NAMESPACE}
-          \$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --atomic
+          \$WORKSPACE/bin/helm upgrade --install ${APP_NAME} helm/ --namespace ${NAMESPACE} --set image.tag=${IMAGE_TAG} --atomic --wait --timeout 5m
         """
       }
     }
