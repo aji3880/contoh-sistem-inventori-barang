@@ -1,4 +1,5 @@
 FROM node:18-alpine AS build
+
 WORKDIR /app
 
 RUN test -f package.json || cat > package.json <<'EOF'
@@ -9,8 +10,7 @@ RUN test -f package.json || cat > package.json <<'EOF'
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "vite preview --port 8080"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.0.0",
@@ -25,12 +25,9 @@ RUN test -f package.json || cat > package.json <<'EOF'
 }
 EOF
 
-RUN npm install
 COPY . .
+RUN npm install
 RUN npm run build
 
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-COPY --from=build /app/dist ./
-EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
+CMD ["npm", "run", "preview"]

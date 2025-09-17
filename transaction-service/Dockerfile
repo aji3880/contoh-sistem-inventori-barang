@@ -1,4 +1,5 @@
 FROM node:18-alpine
+
 WORKDIR /app
 
 RUN test -f package.json || cat > package.json <<'EOF'
@@ -15,8 +16,8 @@ RUN test -f package.json || cat > package.json <<'EOF'
 }
 EOF
 
+COPY . .
 RUN npm install
 
-COPY . .
-
+EXPOSE 3002
 CMD ["node", "index.js"]
