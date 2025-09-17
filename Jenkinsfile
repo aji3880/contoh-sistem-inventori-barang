@@ -102,7 +102,13 @@ EOF
         script {
           def services = ['gateway','user-service','inventory-service','transaction-service','frontend']
           for(s in services){
-            sh "oc tag ${NAMESPACE}/${s}:latest ${NAMESPACE}/${s}:${IMAGE_TAG} || echo 'Skip tagging, source not found'"
+            sh """
+              if oc get istag ${NAMESPACE}/${s}:latest >/dev/null 2>&1; then
+                oc tag ${NAMESPACE}/${s}:latest ${NAMESPACE}/${s}:${IMAGE_TAG}
+              else
+                echo "Skip tagging ${s}, latest image not found"
+              fi
+            """
           }
         }
       }
